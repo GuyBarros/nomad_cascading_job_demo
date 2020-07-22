@@ -7,9 +7,13 @@ job "Dispatch" {
     count = 1
     volume "shared_vol" {
       type = "host"
-        source = "share_mount"
+        source = "shared_mount"
     }
      task "createKeys" {
+         constraint {
+        attribute = "${meta.name}"
+        value     = "EU-guystack-server-0"
+      }
       driver = "exec"
       lifecycle {
         hook    = "prestart"
@@ -35,6 +39,9 @@ job "Dispatch" {
       driver = "exec"
       lifecycle {
         hook    = "prestart"
+      }
+      env {
+        NOMAD_ADDR = "https://nomad-server.service.consul:4646"
       }
       
       artifact {

@@ -5,30 +5,35 @@ job "cascading_bash_jobs" {
    
  group "jobs" {
          count = 1
+
          volume "shared_vol" {
       type = "host"
-        source = "share_mount"
+        source = "shared_mount"
     }
   task "Third_Job" {
        constraint {
-        attribute = "${meta.type}"
-        value     = "server"
+        attribute = "${meta.name}"
+        value     = "EU-guystack-server-0"
       }
       volume_mount {
         volume      = "shared_vol"
         destination = "/tmp/shared"
         }
-      env {
-        VAULT_ADDR = "https://active.vault.service.consul:8200"
-      }
+      
       
     driver = "raw_exec"
 template {
       data = <<EOH
 set -v
-
-# Generate a 2048 bit RSA Key
 echo "get your nomad groove on"
+
+cd /tmp/shared
+ls -lia
+
+echo "finished"
+
+
+
 
 EOH
 destination = "script.sh"
