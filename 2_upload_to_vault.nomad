@@ -25,6 +25,9 @@ job "cascading_bash_jobs" {
       
       
     driver = "exec"
+    env {
+        VAULT_ADDR = "https://active.vault.service.consul:8200"
+      }
 template {
       data = <<EOH
 set -v
