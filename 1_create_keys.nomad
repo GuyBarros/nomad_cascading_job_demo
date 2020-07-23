@@ -37,9 +37,6 @@ job "Dispatch" {
     }  #task
     task "call_next_nomad_job" {
       driver = "exec"
-      lifecycle {
-        hook    = "prestart"
-      }
       env {
         NOMAD_ADDR = "https://nomad-server.service.consul:4646"
       }

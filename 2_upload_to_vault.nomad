@@ -10,7 +10,10 @@ job "cascading_bash_jobs" {
       type = "host"
         source = "shared_mount"
     }
-  task "Third_Job" {
+  task "Load_to_vault" {
+    lifecycle {
+        hook    = "prestart"
+      }
        constraint {
         attribute = "${meta.name}"
         value     = "EU-guystack-server-0"
@@ -21,7 +24,7 @@ job "cascading_bash_jobs" {
         }
       
       
-    driver = "raw_exec"
+    driver = "exec"
 template {
       data = <<EOH
 set -v
@@ -29,11 +32,12 @@ echo "get your nomad groove on"
 
 cd /tmp/shared
 ls -lia
+vault kv put kv/nomad_keys keypairs=@keypair.pem
+vault kv patch kv/nomad_keys publickey=@publickey.crt
+vault kv patch kv/nomad_keys private_unencrypted=@private_unencrypted.pem
+vault kv patch kv/nomad_keys pkcs8=@pkcs8.key
 
 echo "finished"
-
-
-
 
 EOH
 destination = "script.sh"
@@ -44,5 +48,33 @@ perms = "755"
       args    = ["script.sh"]
     }
   }
+
+  task "Dispatch_Job" {
+    driver = "exec"
+       constraint {
+        attribute = "${meta.name}"
+        value     = "EU-guystack-server-0"
+      }
+           env {
+        NOMAD_ADDR = "https://nomad-server.service.consul:4646"
+      }
+      
+    
+template {
+      data = <<EOH
+set -v
+
+nomad job dispatch -meta "keyname=example" dispatch_job
+
+EOH
+destination = "script.sh"
+perms = "755"
+}
+        config {
+      command = "bash"
+      args    = ["script.sh"]
+    }
+  }
+
  } #group
 } #jobs
