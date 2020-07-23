@@ -1,0 +1,1 @@
+nomad job dispatch -meta "keyname=Demo" dispatch_job payload.json
